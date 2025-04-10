@@ -2,17 +2,28 @@ import 'package:flutter/material.dart';
 import 'dashboard.dart';
 import 'customcard.dart';
 import 'contact.dart';
+import 'package:http/http.dart' as http;
+import 'package:xml/xml.dart';
+//https://news.miami.edu/feeds/latest-25.xml
 
+//Network request
+Future<String> fetchXML(String url) async {
+  final output = await http.get(Uri.parse(url));
+  return (output.body);
+}
 
 void main() {
   runApp(const MyUmApp());
+  //print(fetchXML());
+
+  
 }
 
 class MyUmApp extends StatefulWidget {
   const MyUmApp({super.key});
 
-    @override
-    State<MyUmApp> createState() => _MyUmAppState();
+  @override
+  State<MyUmApp> createState() => _MyUmAppState();
 }
 
 class _MyUmAppState extends State<MyUmApp> {
@@ -68,6 +79,85 @@ class _MyUmAppState extends State<MyUmApp> {
 
   ];
 
+List<Widget> myNews = [];
+List<Widget> myNews2 = [];
+List<Widget> myNews3 = [];
+
+
+@override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    fetchXML('https://news.miami.edu/feeds/latest-25.xml').then((data){
+      //data was recieved
+    print(data);
+    final document = XmlDocument.parse(data);
+    final newsitems = document.findAllElements('newsitem');
+
+    newsitems.forEach((newsitem){
+      //we access to newsitem
+      var img = newsitem.getElement('imageSmall')?.innerText;
+      print(img);
+      var title = newsitem.getElement('title')?.innerText;
+      print(title);
+      var summary = newsitem.getElement('abstract')?.innerText;
+      print(summary);
+      //to add items to a list or collection, we use the .add method 
+      myNews.add(CustomCard(img!,title!,summary!));
+    
+    });
+
+  }).catchError((error){
+    print("error");
+  });
+
+      fetchXML('https://news.miami.edu/sonhs/feeds/student-stories-feed.xml').then((data){
+      //data was recieved
+    print(data);
+    final document = XmlDocument.parse(data);
+    final newsitems = document.findAllElements('newsitem');
+
+    newsitems.forEach((newsitem){
+      //we access to newsitem
+      var img = newsitem.getElement('imageSmall')?.innerText;
+      print(img);
+      var title = newsitem.getElement('title')?.innerText;
+      print(title);
+      var summary = newsitem.getElement('abstract')?.innerText;
+      print(summary);
+      //to add items to a list or collection, we use the .add method 
+      myNews2.add(CustomCard(img!,title!,summary!));
+    
+    });
+
+  }).catchError((error){
+    print("error");
+  });
+
+      fetchXML('https://news.miami.edu/frost/feeds/all-news-15.xml').then((data){
+      //data was recieved
+    print(data);
+    final document = XmlDocument.parse(data);
+    final newsitems = document.findAllElements('newsitem');
+
+    newsitems.forEach((newsitem){
+      //we access to newsitem
+      var img = newsitem.getElement('imageSmall')?.innerText;
+      print(img);
+      var title = newsitem.getElement('title')?.innerText;
+      print(title);
+      var summary = newsitem.getElement('abstract')?.innerText;
+      print(summary);
+      //to add items to a list or collection, we use the .add method 
+      myNews3.add(CustomCard(img!,title!,summary!));
+    
+    });
+
+  }).catchError((error){
+    print("error");
+  });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -81,27 +171,10 @@ class _MyUmAppState extends State<MyUmApp> {
         body: Center(
           child: <Widget>[
             Dashboard(),
-            ListView( 
-              children: <Widget>[
-                CustomCard(img[0], titles[0], summary[0]),
-                CustomCard(img[1], titles[1], summary[1]),
-                CustomCard(img[2], titles[2], summary[2]),
-                CustomCard(img[3], titles[3], summary[3]),
-                CustomCard(img[4], titles[4], summary[4]),
-                CustomCard(img[5], titles[5], summary[5]),
-              ],
-            ),
-            ListView(
-             children: <Widget>[
-                CustomCard(img[6], titles[6], summary[6]),
-                CustomCard(img[7], titles[7], summary[7]),
-                CustomCard(img[8], titles[8], summary[8]),
-                CustomCard(img[9], titles[9], summary[9]),
-                CustomCard(img[10], titles[10], summary[10]),
-                CustomCard(img[11], titles[11], summary[11]),
-              ],
-            ),
-            Contact(),
+            ListView(children: myNews),
+            ListView(children: myNews2),
+            ListView(children: myNews3),
+            
           ][currentIndex],
         ),
         bottomNavigationBar: NavigationBar(
